@@ -20,7 +20,7 @@ var (
 )
 
 type TextCat struct {
-	category       map[int]bool
+	categories     map[int]bool
 	thresholdValue float64
 	maxCandidates  int
 	minDocSize     int
@@ -132,7 +132,7 @@ func (tc *TextCat) EnableAllCategories() {
 }
 
 func (tc *TextCat) Classify(text string) (categories []int, err error) {
-	var mydata map[int]int
+	var mydata map[string]int
 
 	categories = make([]int, 0, tc.maxCandidates)
 
@@ -142,7 +142,7 @@ func (tc *TextCat) Classify(text string) (categories []int, err error) {
 	}
 
 	scores := make([]*resultType, 0, len(tc.categories))
-	patt := GetPatterns(text, utf8)
+	patt := GetPatterns(text, true)
 	for category := range tc.categories {
 		if !tc.categories[category] {
 			continue
@@ -201,25 +201,19 @@ func (tc *TextCat) Classify(text string) (categories []int, err error) {
 	return
 }
 
-func (tc *TextCat) AddCategoryWords(category, words []string) {
-	if len(words) == 0 {
+func (tc *TextCat) AddCategoryWords(category int, str string) {
+	if len(str) == 0 {
 		return
 	}
-	if len(words) > 0 {
-		a := make(map[string]int)
-		for word := range words {
-			for i, p := range textcat.GetPatterns(str, true) {
-				if i == MaxPatterns {
-					break
-				}
-				a[p.S] = i
-			}
+	a := make(map[string]int)
+	for i, p := range GetPatterns(str, true) {
+		if i == MaxPatterns {
+			break
 		}
-		tc.extra[category] = a
-		if _, ok := tc.categories[category]; !ok {
-			tc.categories[category] = false
-		}
+		a[p.S] = i
 	}
-
-	return nil
+	tc.extra[category] = a
+	if _, ok := tc.categories[category]; !ok {
+		tc.categories[category] = false
+	}
 }
