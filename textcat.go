@@ -201,7 +201,7 @@ func (tc *TextCat) Classify(text string) (categories []int, err error) {
 	return
 }
 
-func (tc *TextCat) AddCategoryWords(category int, str string) {
+func (tc *TextCat) AddCategory(category int, str string) {
 	if len(str) == 0 {
 		return
 	}
